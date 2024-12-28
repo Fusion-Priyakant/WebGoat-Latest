@@ -5,7 +5,7 @@ on:
 
 jobs:
   instrument:
-    runs-on: iAppSecure-Priyakant
+    runs-on: WebGoat-Latest
 
     defaults:
       run:
