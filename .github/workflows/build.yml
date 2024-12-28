@@ -1,19 +1,12 @@
-name: "Main / Pull requests build"
+name: "Build"
+
 on:
-    pull_request:
-        paths-ignore:
-            - '.txt'
-            - 'LICENSE'
-            - 'docs/**'
-        branches: [ main ]
-    push:
-        branches:
-            - main
+  workflow_dispatch:
 
 jobs:
     pre-commit:
         name: Pre-commit check
-        runs-on: ubuntu-latest
+        runs-on: WebGoat-Latest
         steps:
             -   name: Checkout git repository
                 uses: actions/checkout@v4.1.6
@@ -31,12 +24,12 @@ jobs:
                 uses: pre-commit-ci/lite-action@v1.1.0
                 if: always()
     build:
-        runs-on: ${{ matrix.os }}
+        runs-on: WebGoat-Latest
         needs: [ pre-commit ]
         strategy:
             fail-fast: true
             matrix:
-                os: [ windows-latest, ubuntu-latest, macos-13 ]
+                os: [ windows-latest]
             max-parallel: 1
         steps:
             -   uses: actions/checkout@v4.1.6
