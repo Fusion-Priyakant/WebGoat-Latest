@@ -20,7 +20,7 @@ jobs:
       ApplicationInclude: ""
       ApplicationExclude: ""
       InstrumentedFolder: Instrumented
-      InstrumentedFile: webgoat-2024.2-SNAPSHOT-Instrumented.jar
+      InstrumentedFile: webgoat-2024.2-SNAPSHOT.jar
 
     steps:
     - name: Print environment variables
