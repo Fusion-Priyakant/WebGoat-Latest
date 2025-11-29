@@ -1,0 +1,115 @@
+# This is a basic workflow to help you get started with Actions
+name: Fusion Pipeline Test with Yaml
+
+# Controls when the workflow will run
+on:
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  instrument:
+    runs-on: WebGoat-Kali
+
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/target
+
+    env:
+      FusionLiteServerHost: ${{ vars.FUSIONLITE_SERVER_HOST }}
+      FusionLiteServerPort: ${{ vars.FUSIONLITE_SERVER_PORT }}
+      FusionLiteServerUser: ${{ secrets.FUSIONLITE_SERVER_USER }}
+      FusionLiteServerKeyFile: ${{ secrets.FUSIONLITE_SERVER_KEY_FILE }}
+      FusionLiteProject: ${{ github.event.repository.name }}
+      ApplicationFile: webgoat-2024.2-SNAPSHOT.jar
+      ApplicationInclude: ""
+      ApplicationExclude: ""
+      InstrumentedFolder: Instrumented
+      InstrumentedFile: webgoat-2024.2-SNAPSHOT.jar
+      
+    steps:
+      - name: Print Environment Variables
+        run: |
+          echo "FusionLiteServerHost: ${{ env.FusionLiteServerHost }}"
+          echo "FusionLiteServerPort: ${{ env.FusionLiteServerPort }}"
+          echo "FusionLiteServerUser: ${{ env.FusionLiteServerUser }}"
+          echo "FusionLiteServerKeyFile: ${{ env.FusionLiteServerKeyFile }}"
+          echo "FusionLiteProject: ${{ env.FusionLiteProject }}"
+          echo "ApplicationFile: ${{ env.ApplicationFile }}"
+          echo "ApplicationInclude: ${{ env.ApplicationInclude }}"
+          echo "ApplicationExclude: ${{ env.ApplicationExclude }}"
+          echo "InstrumentedFolder: ${{ env.InstrumentedFolder }}"
+          echo "InstrumentedFile: ${{ env.InstrumentedFile }}"
+
+      - name: Print current working directory
+        run: pwd
+
+      - name: Clean Project
+        run: |
+          $cmdtext = "Clean" + ":" + $FusionLiteProject
+          echo "Cmd : $cmdtext"
+          ssh -i $FusionLiteServerKeyFile -p $FusionLiteServerPort $FusionLiteServerUser@$FusionLiteServerHost $cmdtext
+          echo ""
+
+      - name: Transmit Application
+        run: |
+          echo "------------"
+          echo "Transmitting"
+          echo "------------"
+          sftp -i $FusionLiteServerKeyFile -P $FusionLiteServerPort $FusionLiteServerUser@$FusionLiteServerHost:$FusionLiteProject/Input/ <<< $'put '$ApplicationFile' '$ApplicationFile''
+          echo ""
+
+      - name: PreProcess Project
+        run: |
+          echo "-------------"
+          echo "Preprocessing"
+          echo "-------------"
+          cmdtext="PreProcess:$FusionLiteProject"
+          echo "Cmd : $cmdtext"
+          ssh -i $FusionLiteServerKeyFile -p $FusionLiteServerPort $FusionLiteServerUser@$FusionLiteServerHost $cmdtext
+          echo ""
+
+      - name: Instrument Project
+        run: |
+          echo "-------------"
+          echo "Instrumenting"
+          echo "-------------"
+          cmdtext="Instrument:$FusionLiteProject"
+          echo "Cmd : $cmdtext"
+          ssh -i $FusionLiteServerKeyFile -p $FusionLiteServerPort $FusionLiteServerUser@$FusionLiteServerHost $cmdtext
+          echo ""
+
+      - name: PostProcess Project
+        run: |
+          echo "--------------"
+          echo "Postprocessing"
+          echo "--------------"
+          cmdtext="PostProcess:$FusionLiteProject"
+          echo "Cmd : $cmdtext"
+          ssh -i $FusionLiteServerKeyFile -p $FusionLiteServerPort $FusionLiteServerUser@$FusionLiteServerHost $cmdtext
+          echo ""
+
+      - name: Receive Instrumented Files
+        run: |
+          echo "---------"
+          echo "Receiving"
+          echo "---------"
+          if [ -d $InstrumentedFolder ]; then
+              rm -rf $InstrumentedFolder
+          fi
+          mkdir $InstrumentedFolder
+          sftp -i $FusionLiteServerKeyFile -P $FusionLiteServerPort $FusionLiteServerUser@$FusionLiteServerHost:$FusionLiteProject/Output/ <<< $'lcd '$InstrumentedFolder'
+          get '$InstrumentedFile' '$InstrumentedFile''
+          echo ""
+
+      - name: Finalize Project
+        run: |
+          echo "----------"
+          echo "Finalizing"
+          echo "----------"
+          if [ "$InstrumentedFolder" == "Instrumented" ] && [ "$InstrumentedFile" == "Instrumented.zip" ]; then
+              # Extract Instrumented Zip
+              unzip $InstrumentedFolder/$InstrumentedFile -d $InstrumentedFolder
+
+              # Remove Instrumented Zip
+              rm $InstrumentedFolder/$InstrumentedFile
+          fi
