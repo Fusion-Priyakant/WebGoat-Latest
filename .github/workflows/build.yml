@@ -6,7 +6,7 @@ on:
 jobs:
   pre-commit:
     name: Pre-commit check
-    runs-on: WebGoat-Latest
+    runs-on: WebGoat-Kali
     steps:
       - name: Checkout git repository
         uses: actions/checkout@v4.1.6
@@ -18,7 +18,7 @@ jobs:
           java-version: '21'
 
   build:
-    runs-on: WebGoat-Latest
+    runs-on: WebGoat-Kali
     steps:
       - uses: actions/checkout@v4.1.6
 
