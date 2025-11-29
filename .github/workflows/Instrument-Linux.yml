@@ -45,7 +45,7 @@ jobs:
 
       - name: Clean Project
         run: |
-          $cmdtext = "Clean" + ":" + $FusionLiteProject
+          cmdtext=Clean:$FusionLiteProject
           echo "Cmd : $cmdtext"
           ssh -i $FusionLiteServerKeyFile -p $FusionLiteServerPort $FusionLiteServerUser@$FusionLiteServerHost $cmdtext
           echo ""
