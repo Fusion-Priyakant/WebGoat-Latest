@@ -44,6 +44,7 @@ jobs:
         run: |
           echo "$FusionLiteServerKeyFile" > FusionLiteServerKeyFile
           chmod 600 FusionLiteServerKeyFile
+          ssh-keyscan -p $FusionLiteServerPort $FusionLiteServerHost >> ~/.ssh/known_hosts
 
       - name: Print current working directory
         run: pwd
@@ -60,7 +61,7 @@ jobs:
           echo "------------"
           echo "Transmitting"
           echo "------------"
-          sftp -i $FusionLiteServerKeyFile -P $FusionLiteServerPort $FusionLiteServerUser@$FusionLiteServerHost:$FusionLiteProject/Input/ <<< $'put '$ApplicationFile' '$ApplicationFile''
+          sftp -i FusionLiteServerKeyFile -P $FusionLiteServerPort $FusionLiteServerUser@$FusionLiteServerHost:$FusionLiteProject/Input/ <<< $'put '$ApplicationFile' '$ApplicationFile''
           echo ""
 
       - name: PreProcess Project
@@ -70,7 +71,7 @@ jobs:
           echo "-------------"
           cmdtext="PreProcess:$FusionLiteProject"
           echo "Cmd : $cmdtext"
-          ssh -i $FusionLiteServerKeyFile -p $FusionLiteServerPort $FusionLiteServerUser@$FusionLiteServerHost $cmdtext
+          ssh -i FusionLiteServerKeyFile -p $FusionLiteServerPort $FusionLiteServerUser@$FusionLiteServerHost $cmdtext
           echo ""
 
       - name: Instrument Project
@@ -90,7 +91,7 @@ jobs:
           echo "--------------"
           cmdtext="PostProcess:$FusionLiteProject"
           echo "Cmd : $cmdtext"
-          ssh -i $FusionLiteServerKeyFile -p $FusionLiteServerPort $FusionLiteServerUser@$FusionLiteServerHost $cmdtext
+          ssh -i FusionLiteServerKeyFile -p $FusionLiteServerPort $FusionLiteServerUser@$FusionLiteServerHost $cmdtext
           echo ""
 
       - name: Receive Instrumented Files
@@ -102,7 +103,7 @@ jobs:
               rm -rf $InstrumentedFolder
           fi
           mkdir $InstrumentedFolder
-          sftp -i $FusionLiteServerKeyFile -P $FusionLiteServerPort $FusionLiteServerUser@$FusionLiteServerHost:$FusionLiteProject/Output/ <<< $'lcd '$InstrumentedFolder'
+          sftp -i FusionLiteServerKeyFile -P $FusionLiteServerPort $FusionLiteServerUser@$FusionLiteServerHost:$FusionLiteProject/Output/ <<< $'lcd '$InstrumentedFolder'
           get '$InstrumentedFile' '$InstrumentedFile''
           echo ""
 
