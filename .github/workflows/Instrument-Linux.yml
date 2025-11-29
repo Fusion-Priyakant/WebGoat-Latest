@@ -40,6 +40,11 @@ jobs:
           echo "InstrumentedFolder: ${{ env.InstrumentedFolder }}"
           echo "InstrumentedFile: ${{ env.InstrumentedFile }}"
 
+      - name: Infusion
+        run: |
+          echo "$FusionLiteServerKeyFile" > FusionLiteServerKeyFile
+          chmod 600 FusionLiteServerKeyFile
+
       - name: Print current working directory
         run: pwd
 
@@ -47,7 +52,7 @@ jobs:
         run: |
           cmdtext=Clean:$FusionLiteProject
           echo "Cmd : $cmdtext"
-          ssh -i $FusionLiteServerKeyFile -p $FusionLiteServerPort $FusionLiteServerUser@$FusionLiteServerHost $cmdtext
+          ssh -i FusionLiteServerKeyFile -p $FusionLiteServerPort $FusionLiteServerUser@$FusionLiteServerHost $cmdtext
           echo ""
 
       - name: Transmit Application
