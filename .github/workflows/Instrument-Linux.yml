@@ -81,7 +81,7 @@ jobs:
           echo "-------------"
           cmdtext="Instrument:$FusionLiteProject"
           echo "Cmd : $cmdtext"
-          ssh -i $FusionLiteServerKeyFile -p $FusionLiteServerPort $FusionLiteServerUser@$FusionLiteServerHost $cmdtext
+          ssh -i FusionLiteServerKeyFile -p $FusionLiteServerPort $FusionLiteServerUser@$FusionLiteServerHost $cmdtext
           echo ""
 
       - name: PostProcess Project
